@@ -14,8 +14,29 @@ var app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-app.post('/create-product', (req, res) => {
-	res.send(req.body.products);
+app.post('/create-product', async (req, res) => {
+	let text = req.body.products.map(prod => prod.title).join(',');
+
+	let data = {
+		title: 'Build Product',
+		body_html: '<p>'+ text +'</p>',
+		product_type: 'Node Built',
+		variants: [{
+			option1: 'First',
+			price: '50.00',
+			sku: '321321'
+		}]
+	}
+	try {
+		let createdProd = await shopify.product.create(data)
+			.then(res => { return res; })
+			.catch(e => console.log(e))
+			res.send(createdProd);
+	} catch(e) {
+		console.log(e);
+	}
+
+
 });
 
 app.listen(port, () => {
